@@ -1,0 +1,11 @@
+## Interface: 50400
+
+## Title: nfNameplates
+## Notes: Neffi's nameplates.
+## Author: Neffi
+## Version: 0 (DEV)
+
+libs\nfAddon.lua
+
+ui.lua
+core.lua
