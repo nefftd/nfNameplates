@@ -39,7 +39,7 @@
   local c_default  = {0.64,0.64,0.64}
   
   -- If mod.plate_size is present, the core will adjust the base (real)
-  -- nameplates to this size, so they spread properly.
+  -- nameplates to this size, so they spread properly. Format: {width,height}.
   local p_size = {80,36}; mod.plate_size = p_size
 
 
