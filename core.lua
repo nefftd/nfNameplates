@@ -80,10 +80,10 @@
   local active = {}
   
   if manual_pos then
-    WorldFrame:HookScript('OnUpdate',function()
+    WorldFrame:HookScript('OnUpdate',function(self)
       for nfframe in pairs(active) do
         nfframe:Hide()
-        nfframe:SetPoint('CENTER',WorldFrame,'BOTTOMLEFT',nfframe.__p:GetCenter())
+        nfframe:SetPoint('CENTER',self,'BOTTOMLEFT',nfframe.__p:GetCenter())
         nfframe:Show()
       end
     end)
@@ -154,7 +154,7 @@
     local overlay,name = plate:GetChildren()
     local hpbar,castbar = overlay:GetChildren()
     local nametext = name:GetRegions()
-    local _,_,_,leveltext,bossicon,_,eliteicon = overlay:GetRegions()
+    local threatbadge,_,_,leveltext,bossicon,_,eliteicon = overlay:GetRegions()
     
     plate.overlay = overlay
     plate.hpbar = hpbar
@@ -163,6 +163,7 @@
     plate.leveltext = leveltext
     plate.bossicon = bossicon
     plate.eliteicon = eliteicon
+    plate.threatbadge = threatbadge
     
     hpbar.parent = plate
     
