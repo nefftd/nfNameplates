@@ -47,6 +47,17 @@
   local function abbrev(text)
     return text:sub(1,1)..'.'
   end
+  
+  local suf = {'k','M','B','T'}
+  local function clean_format(val)
+    if val == 0 then return '0' end
+    local m = math.log10(val)/3
+      m = m - m % 1
+      if m > #suf then m = #suf end
+    local n = val / 1000 ^ m
+    local fmt = (m == 0 or n >= 100) and '%d%s' or '%.1f%s'
+    return fmt:format(n,suf[m] or '')
+  end
 
 
 -- Update events
@@ -75,13 +86,7 @@
   end
   
   function plateAPI:update_health(current,max)
-    local text = (
-      current > 999999 and ('%.1fM'):format(current/1000000) or
-      current > 99999  and ('%dk')  :format(current/1000) or
-      current > 9999   and ('%.1fk'):format(current/1000) or
-      ('%d'):format(current)
-    )
-    self.hptext:SetText(text)
+    self.hptext:SetText(clean_format(current))
   end
   
   function plateAPI:update_type(npctype,enclass)
