@@ -16,7 +16,7 @@
   local psize = mod.plate_size
     mod.plate_size = nil
   
-  if (
+  if psize and (
     #psize ~= 2 or
     type(psize[1]) ~= 'number' or
     type(psize[2]) ~= 'number' or
