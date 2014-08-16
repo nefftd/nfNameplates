@@ -95,9 +95,7 @@
     local current = self:GetValue()
     local _,max = self:GetMinMaxValues()
     local nfframe = self.parent.nfframe
-    if nfframe.update_health then
-      nfframe:update_health(current,max)
-    end
+    nfframe:update_health(current,max)
   end
   
   local function plate_OnUpdate(self)
@@ -118,29 +116,32 @@
       active[nfframe] = true
     
     -- Events
-    local name = self.nametext:GetText()
-    if not name or name == '' then name = 'Name' end
-    name = name:gsub(' %(.+%)$','',1)
-    
-    local level = tonumber(self.leveltext:GetText())
-    
-    local classification = (
-      self.bossicon:IsShown()      and 'worldboss' or
-      self.eliteicon:IsShown()     and 'elite' or
-      self.overlay:GetScale() < .5 and 'minus' or
-      'normal'
-    )
-    
     if nfframe.update_info then
+      local name = self.nametext:GetText()
+      if not name or name == '' then name = 'Name' end
+      name = name:gsub(' %(.+%)$','',1)
+      
+      local level = tonumber(self.leveltext:GetText())
+      
+      local classification = (
+        self.bossicon:IsShown()      and 'worldboss' or
+        self.eliteicon:IsShown()     and 'elite' or
+        self.overlay:GetScale() < .5 and 'minus' or
+        'normal'
+      )
+      
       nfframe:update_info(name,level,classification)
     end
+    
     if nfframe.update_type then
       nfframe:update_type(compute_type(self))
     end
     
     -- Force an immediate update on other properties
     plate_OnUpdate(self)
-    hpbar_OnValueChanged(self.hpbar)
+    if nfframe.update_health then
+      hpbar_OnValueChanged(self.hpbar)
+    end
   end
   
   local function plate_OnHide(self)
@@ -176,7 +177,9 @@
     plate:SetScript('OnShow',plate_OnShow)
     plate:SetScript('OnHide',plate_OnHide)
     plate:SetScript('OnUpdate',plate_OnUpdate)
-    plate.hpbar:SetScript('OnValueChanged',hpbar_OnValueChanged)
+    if plate.nfframe.update_health then
+      plate.hpbar:SetScript('OnValueChanged',hpbar_OnValueChanged)
+    end
     
     if plate:IsShown() then
       plate_OnShow(plate)
@@ -208,7 +211,7 @@
 
 
 -- Sizer
-  -- Attempt to resize the nameplate
+  -- Attempt to resize the base (real) nameplate, securely (in combat)
   -- Derived from SemlarPlates by Semlar, with permission. <3
   if not psize then return end
   
@@ -230,6 +233,9 @@
     ]])
     RegisterStateDriver(sizer,'mousestate','[@mouseover,exists] on; off')
   
+  -- Nudges the camera imperceptibly, then nudges it back. This forces the
+  -- nameplates to redraw immediately, so when resized, they bounce back to
+  -- their correct new positions/spread.
   local delayed = true
   local function DCF(self)
     delayed = not delayed
