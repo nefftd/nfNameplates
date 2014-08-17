@@ -78,11 +78,13 @@
   -- http://www.wowinterface.com/forums/showpost.php?p=280548&postcount=5
   
   local active = {}
+  local active_H = {}  -- Holds active plates hidden the user (ui.lua)
   
   if manual_pos then
     WorldFrame:HookScript('OnUpdate',function(self)
       for nfframe in pairs(active) do
         nfframe:Hide()
+        nfframe:ClearAllPoints()
         nfframe:SetPoint('CENTER',self,'BOTTOMLEFT',nfframe.__p:GetCenter())
         nfframe:Show()
       end
@@ -147,6 +149,29 @@
   local function plate_OnHide(self)
     self.nfframe:Hide()
     active[self.nfframe] = nil
+    active_H[self.nfframe] = nil
+  end
+  
+  local function vphook_Show(self)
+    if active_H[self] then
+      active[self] = true
+      active_H[self] = nil
+    end
+  end
+  
+  local function vphook_Hide(self)
+    if active[self] then
+      active[self] = nil
+      active_H[self] = true
+    end
+  end
+  
+  local function vphook_SetShown(self,shown)
+    if shown then
+      return vphook_Show(self)
+    else
+      return vphook_Hide(self)
+    end
   end
 
 
@@ -168,11 +193,15 @@
     
     hpbar.parent = plate
     
-    plate.nfframe = newplate()
-    plate.nfframe.__p = plate
+    local nfframe = newplate()
+    nfframe.__p = plate
     if not manual_pos then
-      plate.nfframe:SetPoint('CENTER',overlay,'CENTER')
+      nfframe:SetPoint('CENTER',overlay,'CENTER')
     end
+    hooksecurefunc(nfframe,'Show',vphook_Show)
+    hooksecurefunc(nfframe,'Hide',vphook_Hide)
+    hooksecurefunc(nfframe,'SetShown',vphook_SetShown)
+    plate.nfframe = nfframe
     
     plate:SetScript('OnShow',plate_OnShow)
     plate:SetScript('OnHide',plate_OnHide)
